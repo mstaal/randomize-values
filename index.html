@@ -1,0 +1,59 @@
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta http-equiv="X-UA-Compatible" content="ie=edge">
+        <title>Randomize</title>
+    </head>
+    <body>
+        <div id="data_to_visualize"></div>
+        <script>
+            const date = new Date();
+            const url_params = new URLSearchParams(window.location.search);
+            const values = url_params.get('values').split(',')
+            fetch('https://api.random.org/json-rpc/4/invoke', {
+                method: 'POST',
+                mode: 'cors',
+                cache: 'no-cache',
+                credentials: 'same-origin',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                redirect: 'follow',
+                referrerPolicy: 'no-referrer',
+                body: JSON.stringify({
+                    "jsonrpc": "2.0",
+                    "method": "generateIntegers",
+                    "params": {
+                        "apiKey": "c4555fc6-2141-4651-9190-9c2610eecb66",
+                        "n": values.length,
+                        "min": 0,
+                        "max": Math.max(0, values.length - 1),
+                        "replacement": false,
+                        "pregeneratedRandomization": {
+                            "id": date.getUTCDate() + "-" + date.getUTCFullYear()
+                        }
+                    },
+                    "id": 0
+                })
+            })
+            .then(function (response) {
+                return response.json();
+            })
+            .then(function (json) {
+                appendData(json.result.random.data);
+            })
+            .catch(function (err) {
+                console.log('error: ' + err);
+            });
+            function appendData(keys) {
+                var mainContainer = document.getElementById("data_to_visualize");
+                for (var i = 0; i < keys.length; i++) {
+                    var div = document.createElement("div");
+                    div.innerHTML = values[keys[i]];
+                    mainContainer.appendChild(div);
+                }
+            }
+        </script>
+    </body>
+</html>
