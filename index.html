@@ -8,9 +8,14 @@
     <body>
         <div id="data_to_visualize"></div>
         <script>
-            const date = new Date();
             const url_params = new URLSearchParams(window.location.search);
+            const date = new Date();
             const values = url_params.get('values').split(',')
+            const use_day_seed = (url_params.get('daily') === 'true');
+            const day_seed = date.toLocaleDateString('en-GB').replaceAll('\/', '-');
+            const custom_seed = (url_params.get('seed') ?? '').trim()
+            const seed = use_day_seed ? day_seed : custom_seed
+            const random = seed !== null && seed.length > 0 ? { "id": seed } : null;
             fetch('https://api.random.org/json-rpc/4/invoke', {
                 method: 'POST',
                 mode: 'cors',
@@ -30,9 +35,7 @@
                         "min": 0,
                         "max": Math.max(0, values.length - 1),
                         "replacement": false,
-                        "pregeneratedRandomization": {
-                            "id": date.getUTCDate() + "-" + date.getUTCFullYear()
-                        }
+                        "pregeneratedRandomization": random
                     },
                     "id": 0
                 })
@@ -41,17 +44,17 @@
                 return response.json();
             })
             .then(function (json) {
-                appendData(json.result.random.data);
+                append_data(json.result.random.data);
             })
             .catch(function (err) {
                 console.log('error: ' + err);
             });
-            function appendData(keys) {
-                var mainContainer = document.getElementById("data_to_visualize");
+            function append_data(keys) {
+                var main_container = document.getElementById("data_to_visualize");
                 for (var i = 0; i < keys.length; i++) {
                     var div = document.createElement("div");
                     div.innerHTML = values[keys[i]];
-                    mainContainer.appendChild(div);
+                    main_container.appendChild(div);
                 }
             }
         </script>
